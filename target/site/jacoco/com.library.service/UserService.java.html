@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">library-manager</a> &gt; <a href="index.source.html" class="el_package">com.library.service</a> &gt; <span class="el_source">UserService.java</span></div><h1>UserService.java</h1><pre class="source lang-java linenums">package com.library.service;
+
+import com.library.model.User;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+/**
+ * Service responsible for CRUD operations on users.
+ * Enforces unique email constraint across all users.
+ */
+public class UserService {
+
+    private final Map&lt;String, User&gt; users;
+
+<span class="fc" id="L19">    public UserService() {</span>
+<span class="fc" id="L20">        this.users = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L21">    }</span>
+
+    /**
+     * Adds a new user to the system.
+     * Ensures no duplicate emails exist.
+     *
+     * @param user the user to add (must not be null)
+     * @throws IllegalArgumentException if user is null, already exists, or email is duplicated
+     */
+    public void addUser(User user) {
+<span class="fc bfc" id="L31" title="All 2 branches covered.">        if (user == null) {</span>
+<span class="fc" id="L32">            throw new IllegalArgumentException(&quot;User must not be null.&quot;);</span>
+        }
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (users.containsKey(user.getId())) {</span>
+<span class="fc" id="L35">            throw new IllegalArgumentException(&quot;A user with this ID already exists.&quot;);</span>
+        }
+        // Enforce unique email
+<span class="fc" id="L38">        boolean emailExists = users.values().stream()</span>
+<span class="fc" id="L39">                .anyMatch(existing -&gt; existing.getEmail().equalsIgnoreCase(user.getEmail()));</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (emailExists) {</span>
+<span class="fc" id="L41">            throw new IllegalArgumentException(&quot;A user with this email already exists: &quot; + user.getEmail());</span>
+        }
+<span class="fc" id="L43">        users.put(user.getId(), user);</span>
+<span class="fc" id="L44">    }</span>
+
+    /**
+     * Retrieves a user by their unique ID.
+     *
+     * @param id the user ID
+     * @return an Optional containing the user if found
+     */
+    public Optional&lt;User&gt; getUserById(String id) {
+<span class="fc" id="L53">        return Optional.ofNullable(users.get(id));</span>
+    }
+
+    /**
+     * Returns all users in the system.
+     *
+     * @return a list of all users (never null)
+     */
+    public List&lt;User&gt; getAllUsers() {
+<span class="fc" id="L62">        return new ArrayList&lt;&gt;(users.values());</span>
+    }
+
+    /**
+     * Updates an existing user's fields (name, email).
+     * Validates that the new email is not already taken by another user.
+     *
+     * @param id    the ID of the user to update
+     * @param name  the new name
+     * @param email the new email
+     * @throws IllegalArgumentException if user is not found or email is duplicated
+     */
+    public void updateUser(String id, String name, String email) {
+<span class="fc" id="L75">        User existing = users.get(id);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (existing == null) {</span>
+<span class="fc" id="L77">            throw new IllegalArgumentException(&quot;User not found with ID: &quot; + id);</span>
+        }
+        // Check email uniqueness (exclude current user)
+<span class="fc" id="L80">        boolean emailTaken = users.values().stream()</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">                .anyMatch(u -&gt; !u.getId().equals(id)</span>
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">                        &amp;&amp; u.getEmail().equalsIgnoreCase(email));</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        if (emailTaken) {</span>
+<span class="fc" id="L84">            throw new IllegalArgumentException(&quot;A user with this email already exists: &quot; + email);</span>
+        }
+<span class="fc" id="L86">        existing.setName(name);</span>
+<span class="fc" id="L87">        existing.setEmail(email);</span>
+<span class="fc" id="L88">    }</span>
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the ID of the user to delete
+     * @return true if the user was found and removed, false otherwise
+     */
+    public boolean deleteUser(String id) {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        return users.remove(id) != null;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

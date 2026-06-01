@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LibraryApp.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">library-manager</a> &gt; <a href="index.source.html" class="el_package">com.library.app</a> &gt; <span class="el_source">LibraryApp.java</span></div><h1>LibraryApp.java</h1><pre class="source lang-java linenums">package com.library.app;
+
+import com.library.model.Book;
+import com.library.model.Bookstore;
+import com.library.model.Loan;
+import com.library.model.User;
+import com.library.model.UserRole;
+import com.library.service.BookService;
+import com.library.service.BookstoreService;
+import com.library.service.LoanService;
+import com.library.service.UserService;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+
+/**
+ * Interactive CLI application for the library management system.
+ * Provides menu-driven access to all CRUD and loan operations.
+ */
+public class LibraryApp {
+
+    private final BookService bookService;
+    private final BookstoreService bookstoreService;
+    private final UserService userService;
+    private final LoanService loanService;
+    private final Scanner scanner;
+
+    /**
+     * Initializes the application with all required services.
+     */
+<span class="nc" id="L33">    public LibraryApp() {</span>
+<span class="nc" id="L34">        this.bookService = new BookService();</span>
+<span class="nc" id="L35">        this.bookstoreService = new BookstoreService(bookService);</span>
+<span class="nc" id="L36">        this.userService = new UserService();</span>
+<span class="nc" id="L37">        this.loanService = new LoanService();</span>
+<span class="nc" id="L38">        this.scanner = new Scanner(System.in);</span>
+<span class="nc" id="L39">    }</span>
+
+    /**
+     * Entry point of the application.
+     */
+    public static void main(String[] args) {
+<span class="nc" id="L45">        LibraryApp app = new LibraryApp();</span>
+<span class="nc" id="L46">        app.run();</span>
+<span class="nc" id="L47">    }</span>
+
+    /**
+     * Main loop that displays the menu and processes user choices.
+     */
+    public void run() {
+<span class="nc" id="L53">        boolean running = true;</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        while (running) {</span>
+<span class="nc" id="L55">            printMainMenu();</span>
+<span class="nc" id="L56">            int choice = readInt();</span>
+<span class="nc bnc" id="L57" title="All 6 branches missed.">            switch (choice) {</span>
+<span class="nc" id="L58">                case 1 -&gt; manageBooks();</span>
+<span class="nc" id="L59">                case 2 -&gt; manageBookstores();</span>
+<span class="nc" id="L60">                case 3 -&gt; manageUsers();</span>
+<span class="nc" id="L61">                case 4 -&gt; manageLoans();</span>
+                case 0 -&gt; {
+<span class="nc" id="L63">                    System.out.println(&quot;Exiting application. Goodbye!&quot;);</span>
+<span class="nc" id="L64">                    running = false;</span>
+<span class="nc" id="L65">                }</span>
+<span class="nc" id="L66">                default -&gt; System.out.println(&quot;Invalid option. Please try again.&quot;);</span>
+            }
+<span class="nc" id="L68">        }</span>
+<span class="nc" id="L69">        scanner.close();</span>
+<span class="nc" id="L70">    }</span>
+
+    // --- Main menu ---
+
+    private void printMainMenu() {
+<span class="nc" id="L75">        System.out.println(&quot;\n========================================&quot;);</span>
+<span class="nc" id="L76">        System.out.println(&quot;       LIBRARY MANAGEMENT SYSTEM        &quot;);</span>
+<span class="nc" id="L77">        System.out.println(&quot;========================================&quot;);</span>
+<span class="nc" id="L78">        System.out.println(&quot;  1. Book Management&quot;);</span>
+<span class="nc" id="L79">        System.out.println(&quot;  2. Bookstore Management&quot;);</span>
+<span class="nc" id="L80">        System.out.println(&quot;  3. User Management&quot;);</span>
+<span class="nc" id="L81">        System.out.println(&quot;  4. Loan Management&quot;);</span>
+<span class="nc" id="L82">        System.out.println(&quot;  0. Exit&quot;);</span>
+<span class="nc" id="L83">        System.out.println(&quot;========================================&quot;);</span>
+<span class="nc" id="L84">        System.out.print(&quot;Select an option: &quot;);</span>
+<span class="nc" id="L85">    }</span>
+
+    // --- Book Management ---
+
+    private void manageBooks() {
+<span class="nc" id="L90">        boolean inMenu = true;</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        while (inMenu) {</span>
+<span class="nc" id="L92">            System.out.println(&quot;\n--- Book Management ---&quot;);</span>
+<span class="nc" id="L93">            System.out.println(&quot;  1. Add Book&quot;);</span>
+<span class="nc" id="L94">            System.out.println(&quot;  2. List All Books&quot;);</span>
+<span class="nc" id="L95">            System.out.println(&quot;  3. Update Book&quot;);</span>
+<span class="nc" id="L96">            System.out.println(&quot;  4. Delete Book&quot;);</span>
+<span class="nc" id="L97">            System.out.println(&quot;  0. Back&quot;);</span>
+<span class="nc" id="L98">            System.out.print(&quot;Select an option: &quot;);</span>
+
+<span class="nc" id="L100">            int choice = readInt();</span>
+<span class="nc bnc" id="L101" title="All 6 branches missed.">            switch (choice) {</span>
+<span class="nc" id="L102">                case 1 -&gt; addBook();</span>
+<span class="nc" id="L103">                case 2 -&gt; listBooks();</span>
+<span class="nc" id="L104">                case 3 -&gt; updateBook();</span>
+<span class="nc" id="L105">                case 4 -&gt; deleteBook();</span>
+<span class="nc" id="L106">                case 0 -&gt; inMenu = false;</span>
+<span class="nc" id="L107">                default -&gt; System.out.println(&quot;Invalid option.&quot;);</span>
+            }
+<span class="nc" id="L109">        }</span>
+<span class="nc" id="L110">    }</span>
+
+    private void addBook() {
+<span class="nc" id="L113">        System.out.print(&quot;Title: &quot;);</span>
+<span class="nc" id="L114">        String title = scanner.nextLine();</span>
+<span class="nc" id="L115">        System.out.print(&quot;Author: &quot;);</span>
+<span class="nc" id="L116">        String author = scanner.nextLine();</span>
+<span class="nc" id="L117">        System.out.print(&quot;ISBN: &quot;);</span>
+<span class="nc" id="L118">        String isbn = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L121">            Book book = new Book(title, author, isbn);</span>
+<span class="nc" id="L122">            bookService.addBook(book);</span>
+<span class="nc" id="L123">            System.out.println(&quot;Book added successfully. ID: &quot; + book.getId());</span>
+<span class="nc" id="L124">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L125">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L126">        }</span>
+<span class="nc" id="L127">    }</span>
+
+    private void listBooks() {
+<span class="nc" id="L130">        List&lt;Book&gt; books = bookService.getAllBooks();</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">        if (books.isEmpty()) {</span>
+<span class="nc" id="L132">            System.out.println(&quot;No books registered.&quot;);</span>
+<span class="nc" id="L133">            return;</span>
+        }
+<span class="nc" id="L135">        System.out.println(&quot;\n--- All Books ---&quot;);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        for (Book book : books) {</span>
+<span class="nc" id="L137">            System.out.println(&quot;  &quot; + book);</span>
+<span class="nc" id="L138">        }</span>
+<span class="nc" id="L139">    }</span>
+
+    private void updateBook() {
+<span class="nc" id="L142">        System.out.print(&quot;Book ID to update: &quot;);</span>
+<span class="nc" id="L143">        String id = scanner.nextLine();</span>
+<span class="nc" id="L144">        System.out.print(&quot;New title: &quot;);</span>
+<span class="nc" id="L145">        String title = scanner.nextLine();</span>
+<span class="nc" id="L146">        System.out.print(&quot;New author: &quot;);</span>
+<span class="nc" id="L147">        String author = scanner.nextLine();</span>
+<span class="nc" id="L148">        System.out.print(&quot;New ISBN: &quot;);</span>
+<span class="nc" id="L149">        String isbn = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L152">            bookService.updateBook(id, title, author, isbn);</span>
+<span class="nc" id="L153">            System.out.println(&quot;Book updated successfully.&quot;);</span>
+<span class="nc" id="L154">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L155">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L156">        }</span>
+<span class="nc" id="L157">    }</span>
+
+    private void deleteBook() {
+<span class="nc" id="L160">        System.out.print(&quot;Book ID to delete: &quot;);</span>
+<span class="nc" id="L161">        String id = scanner.nextLine();</span>
+<span class="nc bnc" id="L162" title="All 2 branches missed.">        if (bookService.deleteBook(id)) {</span>
+<span class="nc" id="L163">            System.out.println(&quot;Book deleted successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L165">            System.out.println(&quot;Book not found.&quot;);</span>
+        }
+<span class="nc" id="L167">    }</span>
+
+    // --- Bookstore Management ---
+
+    private void manageBookstores() {
+<span class="nc" id="L172">        boolean inMenu = true;</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">        while (inMenu) {</span>
+<span class="nc" id="L174">            System.out.println(&quot;\n--- Bookstore Management ---&quot;);</span>
+<span class="nc" id="L175">            System.out.println(&quot;  1. Add Bookstore&quot;);</span>
+<span class="nc" id="L176">            System.out.println(&quot;  2. List All Bookstores&quot;);</span>
+<span class="nc" id="L177">            System.out.println(&quot;  3. Update Bookstore&quot;);</span>
+<span class="nc" id="L178">            System.out.println(&quot;  4. Delete Bookstore (Cascade)&quot;);</span>
+<span class="nc" id="L179">            System.out.println(&quot;  5. Add Book to Bookstore&quot;);</span>
+<span class="nc" id="L180">            System.out.println(&quot;  0. Back&quot;);</span>
+<span class="nc" id="L181">            System.out.print(&quot;Select an option: &quot;);</span>
+
+<span class="nc" id="L183">            int choice = readInt();</span>
+<span class="nc bnc" id="L184" title="All 7 branches missed.">            switch (choice) {</span>
+<span class="nc" id="L185">                case 1 -&gt; addBookstore();</span>
+<span class="nc" id="L186">                case 2 -&gt; listBookstores();</span>
+<span class="nc" id="L187">                case 3 -&gt; updateBookstore();</span>
+<span class="nc" id="L188">                case 4 -&gt; deleteBookstore();</span>
+<span class="nc" id="L189">                case 5 -&gt; addBookToBookstore();</span>
+<span class="nc" id="L190">                case 0 -&gt; inMenu = false;</span>
+<span class="nc" id="L191">                default -&gt; System.out.println(&quot;Invalid option.&quot;);</span>
+            }
+<span class="nc" id="L193">        }</span>
+<span class="nc" id="L194">    }</span>
+
+    private void addBookstore() {
+<span class="nc" id="L197">        System.out.print(&quot;Bookstore name: &quot;);</span>
+<span class="nc" id="L198">        String name = scanner.nextLine();</span>
+<span class="nc" id="L199">        System.out.print(&quot;Address: &quot;);</span>
+<span class="nc" id="L200">        String address = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L203">            Bookstore bookstore = new Bookstore(name, address);</span>
+<span class="nc" id="L204">            bookstoreService.addBookstore(bookstore);</span>
+<span class="nc" id="L205">            System.out.println(&quot;Bookstore added successfully. ID: &quot; + bookstore.getId());</span>
+<span class="nc" id="L206">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L207">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L208">        }</span>
+<span class="nc" id="L209">    }</span>
+
+    private void listBookstores() {
+<span class="nc" id="L212">        List&lt;Bookstore&gt; stores = bookstoreService.getAllBookstores();</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">        if (stores.isEmpty()) {</span>
+<span class="nc" id="L214">            System.out.println(&quot;No bookstores registered.&quot;);</span>
+<span class="nc" id="L215">            return;</span>
+        }
+<span class="nc" id="L217">        System.out.println(&quot;\n--- All Bookstores ---&quot;);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        for (Bookstore store : stores) {</span>
+<span class="nc" id="L219">            System.out.println(&quot;  &quot; + store);</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">            for (Book book : store.getBooks()) {</span>
+<span class="nc" id="L221">                System.out.println(&quot;    -&gt; &quot; + book);</span>
+<span class="nc" id="L222">            }</span>
+<span class="nc" id="L223">        }</span>
+<span class="nc" id="L224">    }</span>
+
+    private void updateBookstore() {
+<span class="nc" id="L227">        System.out.print(&quot;Bookstore ID to update: &quot;);</span>
+<span class="nc" id="L228">        String id = scanner.nextLine();</span>
+<span class="nc" id="L229">        System.out.print(&quot;New name: &quot;);</span>
+<span class="nc" id="L230">        String name = scanner.nextLine();</span>
+<span class="nc" id="L231">        System.out.print(&quot;New address: &quot;);</span>
+<span class="nc" id="L232">        String address = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L235">            bookstoreService.updateBookstore(id, name, address);</span>
+<span class="nc" id="L236">            System.out.println(&quot;Bookstore updated successfully.&quot;);</span>
+<span class="nc" id="L237">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L238">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L239">        }</span>
+<span class="nc" id="L240">    }</span>
+
+    private void deleteBookstore() {
+<span class="nc" id="L243">        System.out.print(&quot;Bookstore ID to delete: &quot;);</span>
+<span class="nc" id="L244">        String id = scanner.nextLine();</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        if (bookstoreService.deleteBookstore(id)) {</span>
+<span class="nc" id="L246">            System.out.println(&quot;Bookstore and associated books deleted successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L248">            System.out.println(&quot;Bookstore not found.&quot;);</span>
+        }
+<span class="nc" id="L250">    }</span>
+
+    private void addBookToBookstore() {
+<span class="nc" id="L253">        System.out.print(&quot;Bookstore ID: &quot;);</span>
+<span class="nc" id="L254">        String storeId = scanner.nextLine();</span>
+<span class="nc" id="L255">        System.out.print(&quot;Book title: &quot;);</span>
+<span class="nc" id="L256">        String title = scanner.nextLine();</span>
+<span class="nc" id="L257">        System.out.print(&quot;Book author: &quot;);</span>
+<span class="nc" id="L258">        String author = scanner.nextLine();</span>
+<span class="nc" id="L259">        System.out.print(&quot;Book ISBN: &quot;);</span>
+<span class="nc" id="L260">        String isbn = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L263">            Book book = new Book(title, author, isbn);</span>
+<span class="nc" id="L264">            bookstoreService.addBookToBookstore(storeId, book);</span>
+<span class="nc" id="L265">            System.out.println(&quot;Book added to bookstore. Book ID: &quot; + book.getId());</span>
+<span class="nc" id="L266">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L267">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L268">        }</span>
+<span class="nc" id="L269">    }</span>
+
+    // --- User Management ---
+
+    private void manageUsers() {
+<span class="nc" id="L274">        boolean inMenu = true;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">        while (inMenu) {</span>
+<span class="nc" id="L276">            System.out.println(&quot;\n--- User Management ---&quot;);</span>
+<span class="nc" id="L277">            System.out.println(&quot;  1. Add User&quot;);</span>
+<span class="nc" id="L278">            System.out.println(&quot;  2. List All Users&quot;);</span>
+<span class="nc" id="L279">            System.out.println(&quot;  3. Update User&quot;);</span>
+<span class="nc" id="L280">            System.out.println(&quot;  4. Delete User&quot;);</span>
+<span class="nc" id="L281">            System.out.println(&quot;  0. Back&quot;);</span>
+<span class="nc" id="L282">            System.out.print(&quot;Select an option: &quot;);</span>
+
+<span class="nc" id="L284">            int choice = readInt();</span>
+<span class="nc bnc" id="L285" title="All 6 branches missed.">            switch (choice) {</span>
+<span class="nc" id="L286">                case 1 -&gt; addUser();</span>
+<span class="nc" id="L287">                case 2 -&gt; listUsers();</span>
+<span class="nc" id="L288">                case 3 -&gt; updateUser();</span>
+<span class="nc" id="L289">                case 4 -&gt; deleteUser();</span>
+<span class="nc" id="L290">                case 0 -&gt; inMenu = false;</span>
+<span class="nc" id="L291">                default -&gt; System.out.println(&quot;Invalid option.&quot;);</span>
+            }
+<span class="nc" id="L293">        }</span>
+<span class="nc" id="L294">    }</span>
+
+    private void addUser() {
+<span class="nc" id="L297">        System.out.print(&quot;User name: &quot;);</span>
+<span class="nc" id="L298">        String name = scanner.nextLine();</span>
+<span class="nc" id="L299">        System.out.print(&quot;Email: &quot;);</span>
+<span class="nc" id="L300">        String email = scanner.nextLine();</span>
+<span class="nc" id="L301">        System.out.print(&quot;Role (1=ADMIN, 2=REQUESTER): &quot;);</span>
+<span class="nc" id="L302">        int roleChoice = readInt();</span>
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">        UserRole role = (roleChoice == 1) ? UserRole.ADMIN : UserRole.REQUESTER;</span>
+
+        try {
+<span class="nc" id="L307">            User user = new User(name, email, role);</span>
+<span class="nc" id="L308">            userService.addUser(user);</span>
+<span class="nc" id="L309">            System.out.println(&quot;User added successfully. ID: &quot; + user.getId());</span>
+<span class="nc" id="L310">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L311">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L312">        }</span>
+<span class="nc" id="L313">    }</span>
+
+    private void listUsers() {
+<span class="nc" id="L316">        List&lt;User&gt; users = userService.getAllUsers();</span>
+<span class="nc bnc" id="L317" title="All 2 branches missed.">        if (users.isEmpty()) {</span>
+<span class="nc" id="L318">            System.out.println(&quot;No users registered.&quot;);</span>
+<span class="nc" id="L319">            return;</span>
+        }
+<span class="nc" id="L321">        System.out.println(&quot;\n--- All Users ---&quot;);</span>
+<span class="nc bnc" id="L322" title="All 2 branches missed.">        for (User user : users) {</span>
+<span class="nc" id="L323">            System.out.println(&quot;  &quot; + user);</span>
+<span class="nc" id="L324">        }</span>
+<span class="nc" id="L325">    }</span>
+
+    private void updateUser() {
+<span class="nc" id="L328">        System.out.print(&quot;User ID to update: &quot;);</span>
+<span class="nc" id="L329">        String id = scanner.nextLine();</span>
+<span class="nc" id="L330">        System.out.print(&quot;New name: &quot;);</span>
+<span class="nc" id="L331">        String name = scanner.nextLine();</span>
+<span class="nc" id="L332">        System.out.print(&quot;New email: &quot;);</span>
+<span class="nc" id="L333">        String email = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L336">            userService.updateUser(id, name, email);</span>
+<span class="nc" id="L337">            System.out.println(&quot;User updated successfully.&quot;);</span>
+<span class="nc" id="L338">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L339">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L340">        }</span>
+<span class="nc" id="L341">    }</span>
+
+    private void deleteUser() {
+<span class="nc" id="L344">        System.out.print(&quot;User ID to delete: &quot;);</span>
+<span class="nc" id="L345">        String id = scanner.nextLine();</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">        if (userService.deleteUser(id)) {</span>
+<span class="nc" id="L347">            System.out.println(&quot;User deleted successfully.&quot;);</span>
+        } else {
+<span class="nc" id="L349">            System.out.println(&quot;User not found.&quot;);</span>
+        }
+<span class="nc" id="L351">    }</span>
+
+    // --- Loan Management ---
+
+    private void manageLoans() {
+<span class="nc" id="L356">        boolean inMenu = true;</span>
+<span class="nc bnc" id="L357" title="All 2 branches missed.">        while (inMenu) {</span>
+<span class="nc" id="L358">            System.out.println(&quot;\n--- Loan Management ---&quot;);</span>
+<span class="nc" id="L359">            System.out.println(&quot;  1. Loan a Book&quot;);</span>
+<span class="nc" id="L360">            System.out.println(&quot;  2. Return a Book&quot;);</span>
+<span class="nc" id="L361">            System.out.println(&quot;  3. List All Loans&quot;);</span>
+<span class="nc" id="L362">            System.out.println(&quot;  4. List Active Loans by User&quot;);</span>
+<span class="nc" id="L363">            System.out.println(&quot;  0. Back&quot;);</span>
+<span class="nc" id="L364">            System.out.print(&quot;Select an option: &quot;);</span>
+
+<span class="nc" id="L366">            int choice = readInt();</span>
+<span class="nc bnc" id="L367" title="All 6 branches missed.">            switch (choice) {</span>
+<span class="nc" id="L368">                case 1 -&gt; loanBook();</span>
+<span class="nc" id="L369">                case 2 -&gt; returnBook();</span>
+<span class="nc" id="L370">                case 3 -&gt; listAllLoans();</span>
+<span class="nc" id="L371">                case 4 -&gt; listActiveLoansByUser();</span>
+<span class="nc" id="L372">                case 0 -&gt; inMenu = false;</span>
+<span class="nc" id="L373">                default -&gt; System.out.println(&quot;Invalid option.&quot;);</span>
+            }
+<span class="nc" id="L375">        }</span>
+<span class="nc" id="L376">    }</span>
+
+    private void loanBook() {
+<span class="nc" id="L379">        System.out.print(&quot;Book ID: &quot;);</span>
+<span class="nc" id="L380">        String bookId = scanner.nextLine();</span>
+<span class="nc" id="L381">        System.out.print(&quot;User ID: &quot;);</span>
+<span class="nc" id="L382">        String userId = scanner.nextLine();</span>
+<span class="nc" id="L383">        System.out.print(&quot;Due date (days from now): &quot;);</span>
+<span class="nc" id="L384">        int days = readInt();</span>
+
+<span class="nc" id="L386">        Optional&lt;Book&gt; bookOpt = bookService.getBookById(bookId);</span>
+<span class="nc" id="L387">        Optional&lt;User&gt; userOpt = userService.getUserById(userId);</span>
+
+<span class="nc bnc" id="L389" title="All 2 branches missed.">        if (bookOpt.isEmpty()) {</span>
+<span class="nc" id="L390">            System.out.println(&quot;Book not found.&quot;);</span>
+<span class="nc" id="L391">            return;</span>
+        }
+<span class="nc bnc" id="L393" title="All 2 branches missed.">        if (userOpt.isEmpty()) {</span>
+<span class="nc" id="L394">            System.out.println(&quot;User not found.&quot;);</span>
+<span class="nc" id="L395">            return;</span>
+        }
+
+        try {
+<span class="nc" id="L399">            LocalDate dueDate = LocalDate.now().plusDays(days);</span>
+<span class="nc" id="L400">            Loan loan = loanService.loanBook(bookOpt.get(), userOpt.get(), dueDate);</span>
+<span class="nc" id="L401">            System.out.println(&quot;Loan created successfully. Loan ID: &quot; + loan.getId());</span>
+<span class="nc" id="L402">        } catch (IllegalStateException | IllegalArgumentException e) {</span>
+<span class="nc" id="L403">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L404">        }</span>
+<span class="nc" id="L405">    }</span>
+
+    private void returnBook() {
+<span class="nc" id="L408">        System.out.print(&quot;Loan ID: &quot;);</span>
+<span class="nc" id="L409">        String loanId = scanner.nextLine();</span>
+
+        try {
+<span class="nc" id="L412">            loanService.returnBook(loanId);</span>
+<span class="nc" id="L413">            System.out.println(&quot;Book returned successfully.&quot;);</span>
+<span class="nc" id="L414">        } catch (IllegalArgumentException | IllegalStateException e) {</span>
+<span class="nc" id="L415">            System.out.println(&quot;Error: &quot; + e.getMessage());</span>
+<span class="nc" id="L416">        }</span>
+<span class="nc" id="L417">    }</span>
+
+    private void listAllLoans() {
+<span class="nc" id="L420">        List&lt;Loan&gt; allLoans = loanService.getAllLoans();</span>
+<span class="nc bnc" id="L421" title="All 2 branches missed.">        if (allLoans.isEmpty()) {</span>
+<span class="nc" id="L422">            System.out.println(&quot;No loans registered.&quot;);</span>
+<span class="nc" id="L423">            return;</span>
+        }
+<span class="nc" id="L425">        System.out.println(&quot;\n--- All Loans ---&quot;);</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">        for (Loan loan : allLoans) {</span>
+<span class="nc" id="L427">            System.out.println(&quot;  &quot; + loan);</span>
+<span class="nc" id="L428">        }</span>
+<span class="nc" id="L429">    }</span>
+
+    private void listActiveLoansByUser() {
+<span class="nc" id="L432">        System.out.print(&quot;User ID: &quot;);</span>
+<span class="nc" id="L433">        String userId = scanner.nextLine();</span>
+<span class="nc" id="L434">        List&lt;Loan&gt; activeLoans = loanService.getActiveLoansByUser(userId);</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">        if (activeLoans.isEmpty()) {</span>
+<span class="nc" id="L436">            System.out.println(&quot;No active loans for this user.&quot;);</span>
+<span class="nc" id="L437">            return;</span>
+        }
+<span class="nc" id="L439">        System.out.println(&quot;\n--- Active Loans ---&quot;);</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">        for (Loan loan : activeLoans) {</span>
+<span class="nc" id="L441">            System.out.println(&quot;  &quot; + loan);</span>
+<span class="nc" id="L442">        }</span>
+<span class="nc" id="L443">    }</span>
+
+    // --- Input helpers ---
+
+    /**
+     * Reads an integer from stdin, consuming the trailing newline.
+     *
+     * @return the parsed integer, or -1 if input is invalid
+     */
+    private int readInt() {
+        try {
+<span class="nc" id="L454">            String line = scanner.nextLine();</span>
+<span class="nc" id="L455">            return Integer.parseInt(line.trim());</span>
+<span class="nc" id="L456">        } catch (NumberFormatException e) {</span>
+<span class="nc" id="L457">            return -1;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

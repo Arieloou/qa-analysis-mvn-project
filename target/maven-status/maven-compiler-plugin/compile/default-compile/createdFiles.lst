@@ -1,0 +1,11 @@
+com\library\model\Book.class
+com\library\service\BookstoreService.class
+com\library\service\UserService.class
+com\library\model\LoanStatus.class
+com\library\model\User.class
+com\library\service\LoanService.class
+com\library\model\Loan.class
+com\library\model\UserRole.class
+com\library\service\BookService.class
+com\library\model\Bookstore.class
+com\library\app\LibraryApp.class

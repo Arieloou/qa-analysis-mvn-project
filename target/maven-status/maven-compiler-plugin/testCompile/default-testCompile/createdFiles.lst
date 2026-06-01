@@ -1,0 +1,8 @@
+com\library\model\BookstoreTest.class
+com\library\service\LoanServiceTest.class
+com\library\model\BookTest.class
+com\library\service\BookServiceTest.class
+com\library\model\UserTest.class
+com\library\model\LoanTest.class
+com\library\service\UserServiceTest.class
+com\library\service\BookstoreServiceTest.class
