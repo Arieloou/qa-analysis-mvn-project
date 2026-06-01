@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">library-manager</a> &gt; <a href="index.source.html" class="el_package">com.library.service</a> &gt; <span class="el_source">BookService.java</span></div><h1>BookService.java</h1><pre class="source lang-java linenums">package com.library.service;
 
 import com.library.model.Book;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,74 +13,80 @@ import java.util.Optional;
  */
 public class BookService {
 
-    private final Map&lt;String, Book&gt; books;
+  // In-memory store keyed by book ID
+  private final Map&lt;String, Book&gt; books;
 
-<span class="fc" id="L19">    public BookService() {</span>
-<span class="fc" id="L20">        this.books = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L21">    }</span>
+<span class="fc" id="L19">  public BookService() {</span>
+    // Action 1: Indentation reformatted from 4 to 2 spaces (Google Java Style)
+<span class="fc" id="L21">    this.books = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L22">  }</span>
 
-    /**
-     * Adds a new book to the collection.
-     *
-     * @param book the book to add (must not be null)
-     * @throws IllegalArgumentException if book is null or a book with the same ID already exists
-     */
-    public void addBook(Book book) {
-<span class="fc bfc" id="L30" title="All 2 branches covered.">        if (book == null) {</span>
-<span class="fc" id="L31">            throw new IllegalArgumentException(&quot;Book must not be null.&quot;);</span>
-        }
-<span class="fc bfc" id="L33" title="All 2 branches covered.">        if (books.containsKey(book.getId())) {</span>
-<span class="fc" id="L34">            throw new IllegalArgumentException(&quot;A book with this ID already exists.&quot;);</span>
-        }
-<span class="fc" id="L36">        books.put(book.getId(), book);</span>
-<span class="fc" id="L37">    }</span>
-
-    /**
-     * Retrieves a book by its unique ID.
-     *
-     * @param id the book ID
-     * @return an Optional containing the book if found
-     */
-    public Optional&lt;Book&gt; getBookById(String id) {
-<span class="fc" id="L46">        return Optional.ofNullable(books.get(id));</span>
+  /**
+   * Adds a new book to the collection.
+   *
+   * @param book the book to add (must not be null)
+   * @throws IllegalArgumentException if book is null or a book with the same ID
+   *     already exists
+   */
+  public void addBook(Book book) {
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (book == null) {</span>
+<span class="fc" id="L33">      throw new IllegalArgumentException(&quot;Book must not be null.&quot;);</span>
     }
-
-    /**
-     * Returns all books in the system.
-     *
-     * @return a list of all books (never null)
-     */
-    public List&lt;Book&gt; getAllBooks() {
-<span class="fc" id="L55">        return new ArrayList&lt;&gt;(books.values());</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (books.containsKey(book.getId())) {</span>
+<span class="fc" id="L36">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L37">          &quot;A book with this ID already exists.&quot;);</span>
     }
+<span class="fc" id="L39">    books.put(book.getId(), book);</span>
+<span class="fc" id="L40">  }</span>
 
-    /**
-     * Updates an existing book's fields (title, author, ISBN).
-     *
-     * @param id     the ID of the book to update
-     * @param title  the new title
-     * @param author the new author
-     * @param isbn   the new ISBN
-     * @throws IllegalArgumentException if the book is not found
-     */
-    public void updateBook(String id, String title, String author, String isbn) {
-<span class="fc" id="L68">        Book existing = books.get(id);</span>
-<span class="fc bfc" id="L69" title="All 2 branches covered.">        if (existing == null) {</span>
-<span class="fc" id="L70">            throw new IllegalArgumentException(&quot;Book not found with ID: &quot; + id);</span>
-        }
-<span class="fc" id="L72">        existing.setTitle(title);</span>
-<span class="fc" id="L73">        existing.setAuthor(author);</span>
-<span class="fc" id="L74">        existing.setIsbn(isbn);</span>
-<span class="fc" id="L75">    }</span>
+  /**
+   * Retrieves a book by its unique ID.
+   *
+   * @param id the book ID
+   * @return an Optional containing the book if found
+   */
+  public Optional&lt;Book&gt; getBookById(String id) {
+<span class="fc" id="L49">    return Optional.ofNullable(books.get(id));</span>
+  }
 
-    /**
-     * Deletes a book by its ID.
-     *
-     * @param id the ID of the book to delete
-     * @return true if the book was found and removed, false otherwise
-     */
-    public boolean deleteBook(String id) {
-<span class="fc bfc" id="L84" title="All 2 branches covered.">        return books.remove(id) != null;</span>
+  /**
+   * Returns all books in the system.
+   *
+   * @return a list of all books (never null)
+   */
+  public List&lt;Book&gt; getAllBooks() {
+<span class="fc" id="L58">    return new ArrayList&lt;&gt;(books.values());</span>
+  }
+
+  /**
+   * Updates an existing book's fields (title, author, ISBN).
+   *
+   * @param id     the ID of the book to update
+   * @param title  the new title
+   * @param author the new author
+   * @param isbn   the new ISBN
+   * @throws IllegalArgumentException if the book is not found
+   */
+  public void updateBook(String id, String title,
+      String author, String isbn) {
+<span class="fc" id="L72">    Book existing = books.get(id);</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">    if (existing == null) {</span>
+<span class="fc" id="L74">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L75">          &quot;Book not found with ID: &quot; + id);</span>
     }
+<span class="fc" id="L77">    existing.setTitle(title);</span>
+<span class="fc" id="L78">    existing.setAuthor(author);</span>
+<span class="fc" id="L79">    existing.setIsbn(isbn);</span>
+<span class="fc" id="L80">  }</span>
+
+  /**
+   * Deletes a book by its ID.
+   *
+   * @param id the ID of the book to delete
+   * @return true if the book was found and removed, false otherwise
+   */
+  public boolean deleteBook(String id) {
+<span class="fc bfc" id="L89" title="All 2 branches covered.">    return books.remove(id) != null;</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

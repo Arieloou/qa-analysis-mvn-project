@@ -2,7 +2,6 @@
 
 import com.library.model.Book;
 import com.library.model.Bookstore;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,111 +14,121 @@ import java.util.Optional;
  */
 public class BookstoreService {
 
-    private final Map&lt;String, Bookstore&gt; bookstores;
-    private final BookService bookService;
+  // In-memory store keyed by bookstore ID
+  private final Map&lt;String, Bookstore&gt; bookstores;
+  // Dependency for cascade book deletion
+  private final BookService bookService;
 
-    /**
-     * Creates a BookstoreService with a dependency on BookService.
-     * This dependency enables cascade deletion of books when a bookstore is removed.
-     *
-     * @param bookService the book service for managing global book references
-     */
-<span class="fc" id="L27">    public BookstoreService(BookService bookService) {</span>
-<span class="fc bfc" id="L28" title="All 2 branches covered.">        if (bookService == null) {</span>
-<span class="fc" id="L29">            throw new IllegalArgumentException(&quot;BookService must not be null.&quot;);</span>
-        }
-<span class="fc" id="L31">        this.bookstores = new HashMap&lt;&gt;();</span>
-<span class="fc" id="L32">        this.bookService = bookService;</span>
-<span class="fc" id="L33">    }</span>
+  /**
+   * Creates a BookstoreService with a dependency on BookService.
+   * This dependency enables cascade deletion of books when a bookstore is
+   * removed.
+   *
+   * @param bookService the book service for managing global book references
+   */
+<span class="fc" id="L29">  public BookstoreService(BookService bookService) {</span>
+    // Action 1: Indentation reformatted from 4 to 2 spaces (Google Java Style)
+<span class="fc bfc" id="L31" title="All 2 branches covered.">    if (bookService == null) {</span>
+<span class="fc" id="L32">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L33">          &quot;BookService must not be null.&quot;);</span>
+    }
+<span class="fc" id="L35">    this.bookstores = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L36">    this.bookService = bookService;</span>
+<span class="fc" id="L37">  }</span>
 
-    /**
-     * Adds a new bookstore to the system.
-     *
-     * @param bookstore the bookstore to add (must not be null)
-     * @throws IllegalArgumentException if bookstore is null or already exists
-     */
-    public void addBookstore(Bookstore bookstore) {
-<span class="fc bfc" id="L42" title="All 2 branches covered.">        if (bookstore == null) {</span>
-<span class="fc" id="L43">            throw new IllegalArgumentException(&quot;Bookstore must not be null.&quot;);</span>
-        }
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (bookstores.containsKey(bookstore.getId())) {</span>
-<span class="fc" id="L46">            throw new IllegalArgumentException(&quot;A bookstore with this ID already exists.&quot;);</span>
-        }
-<span class="fc" id="L48">        bookstores.put(bookstore.getId(), bookstore);</span>
-<span class="fc" id="L49">    }</span>
+  /**
+   * Adds a new bookstore to the system.
+   *
+   * @param bookstore the bookstore to add (must not be null)
+   * @throws IllegalArgumentException if bookstore is null or already exists
+   */
+  public void addBookstore(Bookstore bookstore) {
+<span class="fc bfc" id="L46" title="All 2 branches covered.">    if (bookstore == null) {</span>
+<span class="fc" id="L47">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L48">          &quot;Bookstore must not be null.&quot;);</span>
+    }
+<span class="fc bfc" id="L50" title="All 2 branches covered.">    if (bookstores.containsKey(bookstore.getId())) {</span>
+<span class="fc" id="L51">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L52">          &quot;A bookstore with this ID already exists.&quot;);</span>
+    }
+<span class="fc" id="L54">    bookstores.put(bookstore.getId(), bookstore);</span>
+<span class="fc" id="L55">  }</span>
 
-    /**
-     * Retrieves a bookstore by its unique ID.
-     *
-     * @param id the bookstore ID
-     * @return an Optional containing the bookstore if found
-     */
-    public Optional&lt;Bookstore&gt; getBookstoreById(String id) {
-<span class="fc" id="L58">        return Optional.ofNullable(bookstores.get(id));</span>
+  /**
+   * Retrieves a bookstore by its unique ID.
+   *
+   * @param id the bookstore ID
+   * @return an Optional containing the bookstore if found
+   */
+  public Optional&lt;Bookstore&gt; getBookstoreById(String id) {
+<span class="fc" id="L64">    return Optional.ofNullable(bookstores.get(id));</span>
+  }
+
+  /**
+   * Returns all bookstores in the system.
+   *
+   * @return a list of all bookstores (never null)
+   */
+  public List&lt;Bookstore&gt; getAllBookstores() {
+<span class="fc" id="L73">    return new ArrayList&lt;&gt;(bookstores.values());</span>
+  }
+
+  /**
+   * Updates an existing bookstore's fields (name, address).
+   *
+   * @param id      the ID of the bookstore to update
+   * @param name    the new name
+   * @param address the new address
+   * @throws IllegalArgumentException if the bookstore is not found
+   */
+  public void updateBookstore(String id, String name, String address) {
+<span class="fc" id="L85">    Bookstore existing = bookstores.get(id);</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">    if (existing == null) {</span>
+<span class="fc" id="L87">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L88">          &quot;Bookstore not found with ID: &quot; + id);</span>
+    }
+<span class="fc" id="L90">    existing.setName(name);</span>
+<span class="fc" id="L91">    existing.setAddress(address);</span>
+<span class="fc" id="L92">  }</span>
+
+  /**
+   * Deletes a bookstore and cascade-deletes all books associated with it.
+   * Each book in the bookstore is also removed from the global BookService.
+   *
+   * @param id the ID of the bookstore to delete
+   * @return true if the bookstore was found and removed, false otherwise
+   */
+  public boolean deleteBookstore(String id) {
+<span class="fc" id="L102">    Bookstore bookstore = bookstores.get(id);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">    if (bookstore == null) {</span>
+<span class="fc" id="L104">      return false;</span>
     }
 
-    /**
-     * Returns all bookstores in the system.
-     *
-     * @return a list of all bookstores (never null)
-     */
-    public List&lt;Bookstore&gt; getAllBookstores() {
-<span class="fc" id="L67">        return new ArrayList&lt;&gt;(bookstores.values());</span>
+    // Cascade delete: remove all books from the global book service
+<span class="fc bfc" id="L108" title="All 2 branches covered.">    for (Book book : bookstore.getBooks()) {</span>
+<span class="fc" id="L109">      bookService.deleteBook(book.getId());</span>
     }
 
-    /**
-     * Updates an existing bookstore's fields (name, address).
-     *
-     * @param id      the ID of the bookstore to update
-     * @param name    the new name
-     * @param address the new address
-     * @throws IllegalArgumentException if the bookstore is not found
-     */
-    public void updateBookstore(String id, String name, String address) {
-<span class="fc" id="L79">        Bookstore existing = bookstores.get(id);</span>
-<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (existing == null) {</span>
-<span class="fc" id="L81">            throw new IllegalArgumentException(&quot;Bookstore not found with ID: &quot; + id);</span>
-        }
-<span class="fc" id="L83">        existing.setName(name);</span>
-<span class="fc" id="L84">        existing.setAddress(address);</span>
-<span class="fc" id="L85">    }</span>
+<span class="fc" id="L112">    bookstores.remove(id);</span>
+<span class="fc" id="L113">    return true;</span>
+  }
 
-    /**
-     * Deletes a bookstore and cascade-deletes all books associated with it.
-     * Each book in the bookstore is also removed from the global BookService.
-     *
-     * @param id the ID of the bookstore to delete
-     * @return true if the bookstore was found and removed, false otherwise
-     */
-    public boolean deleteBookstore(String id) {
-<span class="fc" id="L95">        Bookstore bookstore = bookstores.get(id);</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (bookstore == null) {</span>
-<span class="fc" id="L97">            return false;</span>
-        }
-
-        // Cascade delete: remove all books from the global book service
-<span class="fc bfc" id="L101" title="All 2 branches covered.">        for (Book book : bookstore.getBooks()) {</span>
-<span class="fc" id="L102">            bookService.deleteBook(book.getId());</span>
-<span class="fc" id="L103">        }</span>
-
-<span class="fc" id="L105">        bookstores.remove(id);</span>
-<span class="fc" id="L106">        return true;</span>
+  /**
+   * Adds a book to both a bookstore and the global book service.
+   *
+   * @param bookstoreId the ID of the target bookstore
+   * @param book        the book to add
+   * @throws IllegalArgumentException if the bookstore is not found or book is
+   *                                  null
+   */
+  public void addBookToBookstore(String bookstoreId, Book book) {
+<span class="fc" id="L125">    Bookstore bookstore = bookstores.get(bookstoreId);</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">    if (bookstore == null) {</span>
+<span class="fc" id="L127">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L128">          &quot;Bookstore not found with ID: &quot; + bookstoreId);</span>
     }
-
-    /**
-     * Adds a book to both a bookstore and the global book service.
-     *
-     * @param bookstoreId the ID of the target bookstore
-     * @param book        the book to add
-     * @throws IllegalArgumentException if the bookstore is not found or book is null
-     */
-    public void addBookToBookstore(String bookstoreId, Book book) {
-<span class="fc" id="L117">        Bookstore bookstore = bookstores.get(bookstoreId);</span>
-<span class="fc bfc" id="L118" title="All 2 branches covered.">        if (bookstore == null) {</span>
-<span class="fc" id="L119">            throw new IllegalArgumentException(&quot;Bookstore not found with ID: &quot; + bookstoreId);</span>
-        }
-<span class="fc" id="L121">        bookstore.addBook(book);</span>
-<span class="fc" id="L122">        bookService.addBook(book);</span>
-<span class="fc" id="L123">    }</span>
+<span class="fc" id="L130">    bookstore.addBook(book);</span>
+<span class="fc" id="L131">    bookService.addBook(book);</span>
+<span class="fc" id="L132">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

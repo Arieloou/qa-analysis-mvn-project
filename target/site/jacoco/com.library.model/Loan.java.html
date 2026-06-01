@@ -9,103 +9,112 @@ import java.util.UUID;
  */
 public class Loan {
 
-    private final String id;
-    private final Book book;
-    private final User user;
-    private final LocalDate loanDate;
-    private final LocalDate dueDate;
-    private LocalDate returnDate;
-    private LoanStatus status;
+  // Immutable loan data
+  private final String id;
+  private final Book book;
+  private final User user;
+  private final LocalDate loanDate;
+  private final LocalDate dueDate;
+  // Mutable loan state
+  private LocalDate returnDate;
+  private LoanStatus status;
 
-    /**
-     * Creates a new active loan with a generated unique ID.
-     *
-     * @param book    the book being loaned (must not be null)
-     * @param user    the user borrowing the book (must not be null)
-     * @param dueDate the date by which the book must be returned (must be after today)
-     * @throws IllegalArgumentException if any parameter is invalid
-     */
-<span class="fc" id="L28">    public Loan(Book book, User user, LocalDate dueDate) {</span>
-<span class="fc bfc" id="L29" title="All 2 branches covered.">        if (book == null) {</span>
-<span class="fc" id="L30">            throw new IllegalArgumentException(&quot;Book must not be null.&quot;);</span>
-        }
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (user == null) {</span>
-<span class="fc" id="L33">            throw new IllegalArgumentException(&quot;User must not be null.&quot;);</span>
-        }
-<span class="fc bfc" id="L35" title="All 4 branches covered.">        if (dueDate == null || !dueDate.isAfter(LocalDate.now())) {</span>
-<span class="fc" id="L36">            throw new IllegalArgumentException(&quot;Due date must be a future date.&quot;);</span>
-        }
-<span class="fc" id="L38">        this.id = UUID.randomUUID().toString();</span>
-<span class="fc" id="L39">        this.book = book;</span>
-<span class="fc" id="L40">        this.user = user;</span>
-<span class="fc" id="L41">        this.loanDate = LocalDate.now();</span>
-<span class="fc" id="L42">        this.dueDate = dueDate;</span>
-<span class="fc" id="L43">        this.returnDate = null;</span>
-<span class="fc" id="L44">        this.status = LoanStatus.ACTIVE;</span>
-<span class="fc" id="L45">    }</span>
-
-    // --- Getters ---
-
-    public String getId() {
-<span class="fc" id="L50">        return id;</span>
+  /**
+   * Creates a new active loan with a generated unique ID.
+   *
+   * @param book    the book being loaned (must not be null)
+   * @param user    the user borrowing the book (must not be null)
+   * @param dueDate the date by which the book must be returned (must be after today)
+   * @throws IllegalArgumentException if any parameter is invalid
+   */
+<span class="fc" id="L30">  public Loan(Book book, User user, LocalDate dueDate) {</span>
+    // Action 1: Indentation reformatted from 4 to 2 spaces (Google Java Style)
+<span class="fc bfc" id="L32" title="All 2 branches covered.">    if (book == null) {</span>
+<span class="fc" id="L33">      throw new IllegalArgumentException(&quot;Book must not be null.&quot;);</span>
     }
-
-    public Book getBook() {
-<span class="fc" id="L54">        return book;</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">    if (user == null) {</span>
+<span class="fc" id="L36">      throw new IllegalArgumentException(&quot;User must not be null.&quot;);</span>
     }
-
-    public User getUser() {
-<span class="fc" id="L58">        return user;</span>
+<span class="fc bfc" id="L38" title="All 4 branches covered.">    if (dueDate == null || !dueDate.isAfter(LocalDate.now())) {</span>
+<span class="fc" id="L39">      throw new IllegalArgumentException(</span>
+<span class="fc" id="L40">          &quot;Due date must be a future date.&quot;);</span>
     }
+<span class="fc" id="L42">    this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L43">    this.book = book;</span>
+<span class="fc" id="L44">    this.user = user;</span>
+<span class="fc" id="L45">    this.loanDate = LocalDate.now();</span>
+<span class="fc" id="L46">    this.dueDate = dueDate;</span>
+<span class="fc" id="L47">    this.returnDate = null;</span>
+<span class="fc" id="L48">    this.status = LoanStatus.ACTIVE;</span>
+<span class="fc" id="L49">  }</span>
 
-    public LocalDate getLoanDate() {
-<span class="fc" id="L62">        return loanDate;</span>
+  // --- Getters ---
+
+  public String getId() {
+<span class="fc" id="L54">    return id;</span>
+  }
+
+  public Book getBook() {
+<span class="fc" id="L58">    return book;</span>
+  }
+
+  public User getUser() {
+<span class="fc" id="L62">    return user;</span>
+  }
+
+  public LocalDate getLoanDate() {
+<span class="fc" id="L66">    return loanDate;</span>
+  }
+
+  public LocalDate getDueDate() {
+<span class="fc" id="L70">    return dueDate;</span>
+  }
+
+  public LocalDate getReturnDate() {
+<span class="fc" id="L74">    return returnDate;</span>
+  }
+
+  public LoanStatus getStatus() {
+<span class="fc" id="L78">    return status;</span>
+  }
+
+  // --- Loan operations ---
+
+  /**
+   * Marks this loan as returned, setting the return date to today
+   * and restoring the book's availability.
+   *
+   * @throws IllegalStateException if the loan was already returned
+   */
+  public void returnBook() {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (this.status == LoanStatus.RETURNED) {</span>
+<span class="fc" id="L91">      throw new IllegalStateException(</span>
+<span class="fc" id="L92">          &quot;This loan has already been returned.&quot;);</span>
     }
+<span class="fc" id="L94">    this.status = LoanStatus.RETURNED;</span>
+<span class="fc" id="L95">    this.returnDate = LocalDate.now();</span>
+<span class="fc" id="L96">    this.book.setAvailable(true);</span>
+<span class="fc" id="L97">  }</span>
 
-    public LocalDate getDueDate() {
-<span class="fc" id="L66">        return dueDate;</span>
-    }
+  /**
+   * Checks whether this loan is overdue (past due date and still active).
+   *
+   * @return true if the loan is active and the due date has passed
+   */
+  public boolean isOverdue() {
+<span class="pc bfc" id="L105" title="All 2 branches covered.">    return this.status == LoanStatus.ACTIVE</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">        &amp;&amp; LocalDate.now().isAfter(this.dueDate);</span>
+  }
 
-    public LocalDate getReturnDate() {
-<span class="fc" id="L70">        return returnDate;</span>
-    }
-
-    public LoanStatus getStatus() {
-<span class="fc" id="L74">        return status;</span>
-    }
-
-    // --- Loan operations ---
-
-    /**
-     * Marks this loan as returned, setting the return date to today
-     * and restoring the book's availability.
-     *
-     * @throws IllegalStateException if the loan was already returned
-     */
-    public void returnBook() {
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (this.status == LoanStatus.RETURNED) {</span>
-<span class="fc" id="L87">            throw new IllegalStateException(&quot;This loan has already been returned.&quot;);</span>
-        }
-<span class="fc" id="L89">        this.status = LoanStatus.RETURNED;</span>
-<span class="fc" id="L90">        this.returnDate = LocalDate.now();</span>
-<span class="fc" id="L91">        this.book.setAvailable(true);</span>
-<span class="fc" id="L92">    }</span>
-
-    /**
-     * Checks whether this loan is overdue (past due date and still active).
-     *
-     * @return true if the loan is active and the due date has passed
-     */
-    public boolean isOverdue() {
-<span class="fc bfc" id="L100" title="All 2 branches covered.">        return this.status == LoanStatus.ACTIVE</span>
-<span class="pc bpc" id="L101" title="1 of 2 branches missed.">                &amp;&amp; LocalDate.now().isAfter(this.dueDate);</span>
-    }
-
-    @Override
-    public String toString() {
-<span class="fc" id="L106">        return String.format(</span>
-                &quot;Loan{id='%s', book='%s', user='%s', loanDate=%s, dueDate=%s, returnDate=%s, status=%s}&quot;,
-<span class="fc" id="L108">                id, book.getTitle(), user.getName(), loanDate, dueDate, returnDate, status);</span>
-    }
+  // Action 3: Line length fix — split the format string across multiple lines
+  // to keep each line under 100 characters (Google Java Style max line length).
+  @Override
+  public String toString() {
+<span class="fc" id="L113">    return String.format(</span>
+<span class="fc" id="L114">        &quot;Loan{id='%s', book='%s', user='%s', &quot;</span>
+            + &quot;loanDate=%s, dueDate=%s, returnDate=%s, status=%s}&quot;,
+<span class="fc" id="L116">        id, book.getTitle(), user.getName(),</span>
+<span class="fc" id="L117">        loanDate, dueDate, returnDate, status);</span>
+  }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
